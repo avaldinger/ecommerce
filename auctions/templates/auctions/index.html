@@ -1,0 +1,25 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2 style="color: #000000; font-family: 'Trocchi', serif; font-size: 45px;">Active Listings</h2>
+    <div style="margin-left:20px">
+    <ul class="list-group list-group-flush">
+    {% for item in auction_list %}
+    <li class="list-group-item">    
+    <br>
+        {% if item.image %}
+        <image src={{ item.image }} alt={{ item.item }}  width="400" height="500">    </image>
+        <br>
+        {% endif %}
+        <b>Item:</b> {{ item.item }} 
+        <br>
+        <b>Price:</b> {{ item.price }} €
+        <br>
+        <b>Description:</b>
+        {{ item.description}}
+        <br>
+    </li>
+    {% endfor %}
+    <ul>
+    </div>
+{% endblock %}

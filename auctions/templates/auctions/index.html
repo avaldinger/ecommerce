@@ -2,24 +2,27 @@
 
 {% block body %}
 <h2 style="color: #000000; font-family: 'Trocchi', serif; font-size: 45px;">Active Listings</h2>
-    <div style="margin-left:20px">
-    <ul class="list-group list-group-flush">
+    <div class="card-deck" style="margin-left:20px">
     {% for item in auction_list %}
-    <li class="list-group-item">    
-    <br>
-        {% if item.image %}
-        <image src={{ item.image }} alt={{ item.item }}  width="400" height="500">    </image>
-        <br>
-        {% endif %}
-        <b>Item:</b> {{ item.item }} 
-        <br>
-        <b>Price:</b> {{ item.price }} €
-        <br>
-        <b>Description:</b>
-        {{ item.description}}
-        <br>
-    </li>
+        <div class="card mb-3" style="max-width: 540px;">
+            <div class="card-header text-center">
+                <h4 class="my-0 font-weight-normal">{{item.category}}</h4>
+              </div>
+            {% if item.image %}
+            <img class="card-img-top" src={{ item.image }} alt="Card image cap">
+            {% endif %}
+            <div class="card-body">
+              <h1 class="card-title">{{ item.item }}</h1>
+              <h2 class="card-title pricing-card-title">{{ item.price }} €</h2>
+              <p class="card-text">{{ item.description}}</p>
+            </div>
+              <div class="card-footer text-center"> 
+              <a class="btn btn-lg btn-block btn-outline-primary mt-auto" href="https://google.com">Details</a>
+            </div>
+          </div>
+        {% if forloop.counter|divisibleby:"4"  %}           
+            </div><div class="card-deck" style="margin-left:20px">
+        {% endif %}    
     {% endfor %}
-    <ul>
     </div>
 {% endblock %}

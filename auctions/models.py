@@ -6,18 +6,6 @@ from django.core.validators import MinValueValidator
 class User(AbstractUser):
     pass
 
-class Bid(models.Model):
-    startingBid = models.FloatField
-    currentBid = models.FloatField
-    bidTime = models.DateTimeField(auto_now=True)
-
-
-
-class Comment(models.Model):
-    comment =  models.CharField(max_length=300)
-    time = models.DateTimeField(auto_now_add=True)
-
-
 class AuctionListing(models.Model):
     NotDefined = "NotDefined"
     CATEGORIES = (
@@ -37,8 +25,25 @@ class AuctionListing(models.Model):
     price = models.FloatField(validators=[MinValueValidator(0.01)])
     image = models.CharField(blank=True, max_length=250)
     itemAdded = models.DateTimeField(auto_now_add=True)
+    startingBid = models.FloatField(default=0, validators=[MinValueValidator(0.01)])
+    
     # bid = models.ForeignKey(Bid, blank=True, on_delete=models.CASCADE)  
     # comments = models.ForeignKey(Comment, blank=True, on_delete=models.CASCADE)
 
+class Bid(models.Model):
+    currentBid = models.FloatField(blank=True, default=None, null=True)
+    nextBid = models.FloatField(blank=True, default=None, null=True)
+    bidTime = models.DateTimeField(auto_now=True)
+    item = models.ForeignKey(AuctionListing, default=None, null=True, blank=True, on_delete=models.DO_NOTHING)
+
+class WishList(models.Model):
+    timeStamp = models.DateTimeField(auto_now=True)
+    item = models.ForeignKey(AuctionListing, default=None, null=True, blank=True, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
 
 
+
+class Comment(models.Model):
+    comment =  models.CharField(max_length=300)
+    time = models.DateTimeField(auto_now_add=True)
+    item = models.ForeignKey(AuctionListing, default=None, null=True, blank=True, on_delete=models.DO_NOTHING) 

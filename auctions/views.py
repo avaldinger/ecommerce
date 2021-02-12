@@ -80,9 +80,6 @@ class CommentForm(forms.ModelForm):
         )
 
 
-
-
-
 def index(request):
     auction_list = AuctionListing.objects.filter(sold=False)
     print(auction_list)

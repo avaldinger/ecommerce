@@ -9,7 +9,7 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 from django.forms import ModelForm, Textarea
 from datetime import datetime
 
-from .models import User, AuctionListing
+from .models import User, AuctionListing, Comment
 
 
 class AuctionForm(forms.ModelForm):
@@ -30,6 +30,9 @@ class AuctionForm(forms.ModelForm):
         self.fields["price"].widget.attrs["autocomplete"] = "off"
         self.fields['price'].widget.attrs['min'] = 0
         self.fields["category"].widget.attrs["placeholder"] = "Category"
+        self.fields['category'].required = True
+        self.fields['category'].empty_label = None
+        self.fields['category'].initial = False
         self.fields["description"].widget.attrs["placeholder"] = "Here goes the description"
         self.fields["description"].widget.attrs["autocomplete"] = "off"
         self.fields["image"].widget.attrs["placeholder"] = "Image URL"
@@ -54,6 +57,28 @@ class AuctionForm(forms.ModelForm):
             ),
             Submit('submit', 'Save')
         )
+
+class CommentForm(forms.ModelForm):
+
+    class Meta:
+        model = Comment
+        exclude = ['time']
+        widgets = {
+            'comment': Textarea(attrs={'cols': 100, 'rows': 8}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['comment'].required = False
+        self.fields["comment"].widget.attrs["placeholder"] = "Here goes your comment..."
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+            'comment', css_class='form-group col-md-7 mb-0',
+            ),
+            Submit('submit', 'Save comment')
+        )
+
 
 
 
@@ -135,4 +160,11 @@ def createListing(request):
     form = AuctionForm()
     return render(request, "auctions/create.html", {
         "form": form
+    })
+
+def details(request, item_id):
+    item = AuctionListing.objects.get(pk=item_id)
+    form = CommentForm()
+    return render(request, "auctions/details.html", {
+        "item": item, "form": form
     })

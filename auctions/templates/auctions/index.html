@@ -17,7 +17,7 @@
               <p class="card-text">{{ item.description}}</p>
             </div>
               <div class="card-footer text-center"> 
-              <a class="btn btn-lg btn-block btn-outline-primary mt-auto" href="https://google.com">Details</a>
+              <a class="btn btn-lg btn-block btn-outline-primary mt-auto" href="{% url 'details' item.id %}">Details</a>
             </div>
           </div>
         {% if forloop.counter|divisibleby:"4"  %}           

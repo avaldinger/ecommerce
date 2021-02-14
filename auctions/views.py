@@ -141,11 +141,8 @@ def register(request):
 
 def createListing(request):
     if request.method == "POST":
-        print("POSY")
         form = AuctionForm(request.POST)
-        print(form)
         if form.is_valid():
-            print("valid")
             item = form.cleaned_data["item"]
             price = form.cleaned_data["price"]
             description = form.cleaned_data["description"]
@@ -153,7 +150,6 @@ def createListing(request):
             category = form.cleaned_data["category"]
             newItem = AuctionListing(item=item, price=price, description=description, image=image, category=category, itemAdded=datetime.now(), sold=False)
             newItem.save()
-            print("saved")
     form = AuctionForm()
     return render(request, "auctions/create.html", {
         "form": form
@@ -162,6 +158,20 @@ def createListing(request):
 def details(request, item_id):
     item = AuctionListing.objects.get(pk=item_id)
     form = CommentForm()
+    comments = Comment.objects.filter(item=item_id)
     return render(request, "auctions/details.html", {
-        "item": item, "form": form
+        "item": item, "form": form, "comments":comments
     })
+
+def addComment(request, item_id):
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.cleaned_data["comment"]
+        user = request.user
+        item = AuctionListing.objects.get(pk=item_id)
+        print(user)
+        print(item_id)
+        print(item)
+        newItem = Comment(comment=comment, item=item, time=datetime.now(), user=user)
+        newItem.save()
+    return HttpResponseRedirect(reverse("details", args=(item_id,)))

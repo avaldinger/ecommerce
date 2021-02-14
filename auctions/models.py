@@ -6,6 +6,9 @@ from django.core.validators import MinValueValidator
 class User(AbstractUser):
     pass
 
+    def __str__(self):
+        return f"{self.username}"
+
 class AuctionListing(models.Model):
     NotDefined = "NotDefined"
     CATEGORIES = (
@@ -30,6 +33,9 @@ class AuctionListing(models.Model):
     # bid = models.ForeignKey(Bid, blank=True, on_delete=models.CASCADE)  
     # comments = models.ForeignKey(Comment, blank=True, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.id}: {self.item}"
+
 class Bid(models.Model):
     currentBid = models.FloatField(blank=True, default=None, null=True)
     nextBid = models.FloatField(blank=True, default=None, null=True)
@@ -46,4 +52,5 @@ class WishList(models.Model):
 class Comment(models.Model):
     comment =  models.CharField(max_length=300)
     time = models.DateTimeField(auto_now_add=True)
-    item = models.ForeignKey(AuctionListing, default=None, null=True, blank=True, on_delete=models.DO_NOTHING) 
+    item = models.ForeignKey(AuctionListing, default=None, null=True, blank=True, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)

@@ -13,6 +13,7 @@ class BidAdmin(admin.ModelAdmin):
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ("id", "comment", "time", "item", "user")
+    list_editable = ("comment",)
 
 class WishListAdmin(admin.ModelAdmin):
     list_display = ("id", "timeStamp", "item", "user")

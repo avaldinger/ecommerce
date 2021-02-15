@@ -8,8 +8,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from django.forms import ModelForm, Textarea
 from datetime import datetime
+from django.db.models import Q
 
-from .models import User, AuctionListing, Comment
+from .models import User, AuctionListing, Comment, WishList
 
 
 class AuctionForm(forms.ModelForm):
@@ -69,7 +70,7 @@ class CommentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['comment'].required = False
+        self.fields['comment'].required = True
         self.fields["comment"].widget.attrs["placeholder"] = "Here goes your comment..."
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -81,8 +82,8 @@ class CommentForm(forms.ModelForm):
 
 
 def index(request):
+    # Return active items
     auction_list = AuctionListing.objects.filter(sold=False)
-    print(auction_list)
     return render(request, "auctions/index.html", {
         "auction_list": auction_list
     })
@@ -142,6 +143,7 @@ def register(request):
 def createListing(request):
     if request.method == "POST":
         form = AuctionForm(request.POST)
+        # Check form and save entry to the DataBase
         if form.is_valid():
             item = form.cleaned_data["item"]
             price = form.cleaned_data["price"]
@@ -156,11 +158,14 @@ def createListing(request):
     })
 
 def details(request, item_id):
+    # Return details of the selected item
     item = AuctionListing.objects.get(pk=item_id)
     form = CommentForm()
+    user = request.user
+    wish = WishList.objects.filter(Q(item=item_id)&Q(user=user))
     comments = Comment.objects.filter(item=item_id)
     return render(request, "auctions/details.html", {
-        "item": item, "form": form, "comments":comments
+        "item": item, "form": form, "comments": comments, "wish": wish
     })
 
 def addComment(request, item_id):
@@ -175,3 +180,25 @@ def addComment(request, item_id):
         newItem = Comment(comment=comment, item=item, time=datetime.now(), user=user)
         newItem.save()
     return HttpResponseRedirect(reverse("details", args=(item_id,)))
+
+def addToWishlist(request, item_id):
+    item = AuctionListing.objects.get(pk=item_id)
+    user = request.user
+    newItem = WishList(item=item, timeStamp=datetime.now(), user=user)
+    newItem.save()
+    return HttpResponseRedirect(reverse("details", args=(item_id,)))
+
+def removeFromWishlist(request, item_id):
+    user = request.user
+    wishItem = WishList.objects.filter(Q(item=item_id)&Q(user=user))
+    wishItem.delete()
+    return HttpResponseRedirect(reverse("details", args=(item_id,)))
+
+def wishList(request):
+    user = request.user
+    wishes = WishList.objects.filter(user=user)
+    return render(request, "auctions/wishlist.html", {
+        "wishes": wishes
+    })
+
+

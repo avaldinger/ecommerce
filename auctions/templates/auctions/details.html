@@ -8,6 +8,10 @@
         <section class="panel">
               <div class="panel-body">
                   <div class="col-md-6">
+                    {% if wish %}
+                    <span class="badge badge-success">Wishlisted</span>
+                    {% endif %}
+                    <br>
                     {% if item.image %}
                       <div class="pro-img-list">
                         <img class="card-img-top" src={{ item.image }} alt="Card image cap">
@@ -32,19 +36,33 @@
                       </div>
                       <div class="m-bot15"> <strong>Price : </strong> <span class="pro-price"> {{item.price}} €</span></div>
                       <br>
+                      {% if wish %}
                       <p>
-                          <button class="btn btn-round btn-danger" type="button"><i class="fa fa-shopping-cart"></i> Add to Wishlist</button>
+                        <form action="{% url 'removeFromWishlist' item.id %}" method="post">
+                          {% csrf_token %}
+                          <button  class="btn btn-round btn-danger" type="submit"><i class="fa fa-shopping-cart"></i>Remove from Wishlist</button>
+                        </form>
                       </p>
+                      {% else %}
+                      <p>
+                        <form action="{% url 'addToWishlist' item.id %}"  method="post">
+                          {% csrf_token %}
+                          <button  class="btn btn-round btn-danger" type="submit"><i class="fa fa-shopping-cart"></i> Add to Wishlist</button>
+                        </form>
+                      </p>
+                      {% endif %}
                   </div>
                   <form action="{% url 'comment' item.id %}" autocomplete="off" method="post"> 
                     {% csrf_token %}
                     {% crispy form %}
                     <br>
                 </form>
+                {% if comments %}
                 Comments: 
+                {% endif %}
                 <br>
                 {% for comment in comments%}
-                {{comment.time}}  {{coment.user}}
+                <b>{{comment.user.username}}:</b> {{comment.time}}  
                 <br>
                 {{comment.comment}}
                 <br>

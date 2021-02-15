@@ -1,0 +1,12 @@
+{% extends "auctions/layout.html" %}
+
+
+{% block body %}
+    <h2>Wishes</h2>
+    <ul>
+    {% for wish in wishes %}
+        <a href="{% url 'details' item_id=wish.item.id %}"><li>{{ wish.item.item }}</li></a>
+    {% endfor %}
+    </ul>
+
+{% endblock %}

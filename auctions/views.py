@@ -10,7 +10,7 @@ from django.forms import ModelForm, Textarea
 from datetime import datetime
 from django.db.models import Q
 
-from .models import User, AuctionListing, Comment, WishList
+from .models import User, AuctionListing, Comment, WishList, Bid
 
 
 class AuctionForm(forms.ModelForm):
@@ -78,6 +78,26 @@ class CommentForm(forms.ModelForm):
             'comment', css_class='form-group col-md-7 mb-0',
             ),
             Submit('submit', 'Save comment')
+        )
+
+class BidForm(forms.ModelForm):
+
+    class Meta:
+        model = Bid
+        fields = ['nextBid', 'currentBid']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nextBid'].required = True
+        self.fields["nextBid"].widget.attrs["placeholder"] = "Your Bid"
+        self.fields['nextBid'].initial =  Bid.currentBid    
+        self.fields['nextBid'].widget.attrs['min'] =  0
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+            'nextBid',
+            ),
+            Submit('submit', 'Bid')
         )
 
 
@@ -161,11 +181,16 @@ def details(request, item_id):
     # Return details of the selected item
     item = AuctionListing.objects.get(pk=item_id)
     form = CommentForm()
+    bidForm = BidForm()
     user = request.user
+    bid = Bid.objects.filter(item__id=item_id)
+    currentBid = bid[0].currentBid
     wish = WishList.objects.filter(Q(item=item_id)&Q(user=user))
     comments = Comment.objects.filter(item=item_id)
     return render(request, "auctions/details.html", {
-        "item": item, "form": form, "comments": comments, "wish": wish
+        "item": item, "form": form,
+        "comments": comments, "wish": wish,
+        "currentBid": currentBid, "bidForm": bidForm
     })
 
 def addComment(request, item_id):
@@ -200,5 +225,22 @@ def wishList(request):
     return render(request, "auctions/wishlist.html", {
         "wishes": wishes
     })
+
+def addBid(request, item_id):
+    existingBids = Bid.objects.filter(item=item_id)    
+    form = BidForm(request.POST)
+    if form.is_valid():
+        bid = form.cleaned_data["nextBid"]
+        user = request.user
+        item = AuctionListing.objects.get(pk=item_id) 
+        if existingBids:
+            existingBid = existingBids[0]
+            existingBid.bidTime = datetime.now()
+            existingBid.currentBid = bid
+            existingBid.save()
+        else:
+            newItem = Bid(item=item, bidTime=datetime.now(), currentBid=bid)
+            newItem.save()
+    return HttpResponseRedirect(reverse("details", args=(item_id,)))
 
 

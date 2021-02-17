@@ -30,12 +30,20 @@
                       </h4>
                       <p>
                         {{item.description}}
+                        {{ bid.bidTime}}
                       </p>
                       <div class="product_meta">
                           <span class="posted_in"> <strong>Category:</strong> {{item.category}} </span>
                       </div>
                       <div class="m-bot15"> <strong>Price : </strong> <span class="pro-price"> {{item.price}} €</span></div>
                       <br>
+                      <div class="m-bot15"> <strong>Current Bid: </strong> <span class="pro-price"> {{ currentBid }} €</span></div>
+                      <br>
+                      <form action="{% url 'addBid' item.id %}" autocomplete="off" method="post"> 
+                        {% csrf_token %}
+                        {% crispy bidForm %}
+                      </form>
+                                           
                       {% if wish %}
                       <p>
                         <form action="{% url 'removeFromWishlist' item.id %}" method="post">

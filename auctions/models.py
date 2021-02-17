@@ -42,6 +42,9 @@ class Bid(models.Model):
     bidTime = models.DateTimeField(auto_now=True)
     item = models.ForeignKey(AuctionListing, default=None, null=True, blank=True, on_delete=models.DO_NOTHING)
 
+    def __str__(self):
+        return f"{self.item.item}: {self.currentBid}"
+
 class WishList(models.Model):
     timeStamp = models.DateTimeField(auto_now=True)
     item = models.ForeignKey(AuctionListing, default=None, null=True, blank=True, on_delete=models.DO_NOTHING)

@@ -4,11 +4,11 @@ from .models import  User, Bid, Comment, AuctionListing, WishList, Comment
 
 # Register your models here.
 class AuctionListingAdmin(admin.ModelAdmin):
-    list_display = ("id", "item", "description", "category", "sold", "price", "image", "itemAdded", "startingBid")
-    list_editable = ("item", "description", "category", "sold", "price", "image")
+    list_display = ("id", "item", "description", "category", "sold", "price", "image", "itemAdded", "startingBid", "bidWinner")
+    list_editable = ("item", "description", "category", "sold", "price", "image", "bidWinner")
 
 class BidAdmin(admin.ModelAdmin):
-    list_display = ("id", "currentBid", "nextBid", "bidTime", "item")
+    list_display = ("id", "currentBid", "nextBid", "bidTime", "item", "user")
     list_editable = ("currentBid", "nextBid")
 
 class CommentAdmin(admin.ModelAdmin):

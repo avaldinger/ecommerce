@@ -85,11 +85,14 @@ class BidForm(forms.ModelForm):
     class Meta:
         model = Bid
         fields = ['nextBid', 'currentBid']
+        labels = {
+        "nextBid": "Your Bid"
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['nextBid'].required = True
-        self.fields["nextBid"].widget.attrs["placeholder"] = "Your Bid"
+        self.fields["nextBid"].widget.attrs["placeholder"] = "Bid has to be higher than current bid!"
         self.fields['nextBid'].initial =  Bid.currentBid    
         self.fields['nextBid'].widget.attrs['min'] =  0
         self.helper = FormHelper()
@@ -160,6 +163,7 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+@login_required
 def createListing(request):
     if request.method == "POST":
         form = AuctionForm(request.POST)
@@ -177,6 +181,7 @@ def createListing(request):
         "form": form
     })
 
+@login_required
 def details(request, item_id):
     # Return details of the selected item
     item = AuctionListing.objects.get(pk=item_id)
@@ -184,7 +189,11 @@ def details(request, item_id):
     bidForm = BidForm()
     user = request.user
     bid = Bid.objects.filter(item__id=item_id)
-    currentBid = bid[0].currentBid
+    currentBid = 0
+    if not bid:
+        currentBid = item.startingBid
+    else:
+        currentBid = bid[0].currentBid
     wish = WishList.objects.filter(Q(item=item_id)&Q(user=user))
     comments = Comment.objects.filter(item=item_id)
     return render(request, "auctions/details.html", {
@@ -193,6 +202,7 @@ def details(request, item_id):
         "currentBid": currentBid, "bidForm": bidForm
     })
 
+@login_required
 def addComment(request, item_id):
     form = CommentForm(request.POST)
     if form.is_valid():
@@ -206,6 +216,7 @@ def addComment(request, item_id):
         newItem.save()
     return HttpResponseRedirect(reverse("details", args=(item_id,)))
 
+@login_required
 def addToWishlist(request, item_id):
     item = AuctionListing.objects.get(pk=item_id)
     user = request.user
@@ -213,12 +224,14 @@ def addToWishlist(request, item_id):
     newItem.save()
     return HttpResponseRedirect(reverse("details", args=(item_id,)))
 
+@login_required
 def removeFromWishlist(request, item_id):
     user = request.user
     wishItem = WishList.objects.filter(Q(item=item_id)&Q(user=user))
     wishItem.delete()
     return HttpResponseRedirect(reverse("details", args=(item_id,)))
 
+@login_required
 def wishList(request):
     user = request.user
     wishes = WishList.objects.filter(user=user)
@@ -226,20 +239,27 @@ def wishList(request):
         "wishes": wishes
     })
 
+@login_required
 def addBid(request, item_id):
-    existingBids = Bid.objects.filter(item=item_id)    
+    existingBids = Bid.objects.filter(item=item_id)
+    item = AuctionListing.objects.get(pk=item_id)   
     form = BidForm(request.POST)
     if form.is_valid():
         bid = form.cleaned_data["nextBid"]
         user = request.user
-        item = AuctionListing.objects.get(pk=item_id) 
+        item = AuctionListing.objects.get(pk=item_id)
         if existingBids:
+            if bid <= existingBids[0].currentBid or bid <= item.startingBid:
+                return HttpResponse("Bid has to be higher than current bid!")
             existingBid = existingBids[0]
             existingBid.bidTime = datetime.now()
             existingBid.currentBid = bid
+            existingBid.user = user
             existingBid.save()
+        elif bid <= item.startingBid:
+            return HttpResponse("Bid has to be higher than starting bid!")
         else:
-            newItem = Bid(item=item, bidTime=datetime.now(), currentBid=bid)
+            newItem = Bid(item=item, bidTime=datetime.now(), currentBid=bid, user=user)
             newItem.save()
     return HttpResponseRedirect(reverse("details", args=(item_id,)))
 

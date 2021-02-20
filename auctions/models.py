@@ -29,6 +29,7 @@ class AuctionListing(models.Model):
     image = models.CharField(blank=True, max_length=250)
     itemAdded = models.DateTimeField(auto_now_add=True)
     startingBid = models.FloatField(default=0, validators=[MinValueValidator(0.01)])
+    bidWinner = models.CharField(default=None, null=True, blank=True, max_length=60)
     
     # bid = models.ForeignKey(Bid, blank=True, on_delete=models.CASCADE)  
     # comments = models.ForeignKey(Comment, blank=True, on_delete=models.CASCADE)
@@ -41,6 +42,7 @@ class Bid(models.Model):
     nextBid = models.FloatField(blank=True, default=None, null=True)
     bidTime = models.DateTimeField(auto_now=True)
     item = models.ForeignKey(AuctionListing, default=None, null=True, blank=True, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return f"{self.item.item}: {self.currentBid}"

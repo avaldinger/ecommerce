@@ -9,6 +9,7 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 from django.forms import ModelForm, Textarea
 from datetime import datetime
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 from .models import User, AuctionListing, Comment, WishList, Bid
 
@@ -185,6 +186,7 @@ def createListing(request):
 def details(request, item_id):
     # Return details of the selected item
     item = AuctionListing.objects.get(pk=item_id)
+    createdBy = item.createdBy
     form = CommentForm()
     bidForm = BidForm()
     user = request.user
@@ -199,7 +201,8 @@ def details(request, item_id):
     return render(request, "auctions/details.html", {
         "item": item, "form": form,
         "comments": comments, "wish": wish,
-        "currentBid": currentBid, "bidForm": bidForm
+        "currentBid": currentBid, "bidForm": bidForm, 
+        "createdBy": createdBy
     })
 
 @login_required

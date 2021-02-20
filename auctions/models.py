@@ -30,9 +30,7 @@ class AuctionListing(models.Model):
     itemAdded = models.DateTimeField(auto_now_add=True)
     startingBid = models.FloatField(default=0, validators=[MinValueValidator(0.01)])
     bidWinner = models.CharField(default=None, null=True, blank=True, max_length=60)
-    
-    # bid = models.ForeignKey(Bid, blank=True, on_delete=models.CASCADE)  
-    # comments = models.ForeignKey(Comment, blank=True, on_delete=models.CASCADE)
+    createdBy = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return f"{self.id}: {self.item}"

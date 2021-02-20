@@ -24,27 +24,7 @@
                     {% endif %}
                   </div>
                   <br>
-                  <div class="col-md-6">
-                      <h4 class="pro-d-title">
-                        {{item.item}}
-                      </h4>
-                      <p>
-                        {{item.description}}
-                        {{ bid.bidTime}}
-                      </p>
-                      <div class="product_meta">
-                          <span class="posted_in"> <strong>Category:</strong> {{item.category}} </span>
-                      </div>
-                      <div class="m-bot15"> <strong>Starting price : </strong> <span class="pro-price"> {{item.price}} €</span></div>
-                      <br>
-                      <div class="m-bot15"> <strong>Current Bid: </strong> <span class="pro-price"> {{ currentBid }} €</span></div>
-                      <br>
-                      <form action="{% url 'addBid' item.id %}" autocomplete="off" method="post"> 
-                        {% csrf_token %}
-                        {% crispy bidForm %}
-                      </form>
-                                           
-                      {% if wish %}
+                  {% if wish %}
                       <p>
                         <form action="{% url 'removeFromWishlist' item.id %}" method="post">
                           {% csrf_token %}
@@ -59,6 +39,33 @@
                         </form>
                       </p>
                       {% endif %}
+                  <div class="col-md-6">
+                      <h4 class="pro-d-title">
+                        {{item.item}}
+                      </h4>
+                      <p>
+                        {{item.description}}
+                      </p>
+                      <div class="product_meta">
+                          <span class="posted_in"> <strong>Category:</strong> {{item.category}} </span>
+                      </div>
+                      <div class="m-bot15"> <strong>Starting price : </strong> <span class="pro-price"> {{item.price}} €</span></div>
+                      <br>
+                      <div class="m-bot15"> <strong>Current Bid: </strong> <span class="pro-price"> {{ currentBid }} €</span></div>
+                      <br>
+                      {% ifequal request.user createdBy %}
+                      <form action="" method="post">
+                        {% csrf_token %}
+                        <button  class="btn btn-round btn-danger" type="submit"><i class="fa fa-shopping-cart"></i>End bidding</button>
+                      </form>
+                        {% else %}
+                      <form action="{% url 'addBid' item.id %}" autocomplete="off" method="post"> 
+                        {% csrf_token %}
+                        {% crispy bidForm %}
+                      </form>
+                      {% endifequal %}
+                                           
+                      
                   </div>
                   <form action="{% url 'comment' item.id %}" autocomplete="off" method="post"> 
                     {% csrf_token %}

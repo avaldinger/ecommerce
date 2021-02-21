@@ -11,6 +11,10 @@
                     {% if wish %}
                     <span class="badge badge-success">Wishlisted</span>
                     {% endif %}
+                    {% ifequal currentUser item.bidWinner %}  
+                    <span class="badge badge-success">Won by: <b>{{ item.bidWinner }}</b></span>
+                    {% endifequal %}
+                    
                     <br>
                     {% if item.image %}
                       <div class="pro-img-list">
@@ -54,7 +58,7 @@
                       <div class="m-bot15"> <strong>Current Bid: </strong> <span class="pro-price"> {{ currentBid }} €</span></div>
                       <br>
                       {% ifequal request.user createdBy %}
-                      <form action="" method="post">
+                      <form action="{% url 'endBidding' item.id %}" method="post">
                         {% csrf_token %}
                         <button  class="btn btn-round btn-danger" type="submit"><i class="fa fa-shopping-cart"></i>End bidding</button>
                       </form>

@@ -190,6 +190,7 @@ def details(request, item_id):
     form = CommentForm()
     bidForm = BidForm()
     user = request.user
+    currentUser = str(user)
     bid = Bid.objects.filter(item__id=item_id)
     currentBid = 0
     if not bid:
@@ -202,7 +203,7 @@ def details(request, item_id):
         "item": item, "form": form,
         "comments": comments, "wish": wish,
         "currentBid": currentBid, "bidForm": bidForm, 
-        "createdBy": createdBy
+        "createdBy": createdBy, "currentUser": currentUser
     })
 
 @login_required
@@ -252,18 +253,36 @@ def addBid(request, item_id):
         user = request.user
         item = AuctionListing.objects.get(pk=item_id)
         if existingBids:
-            if bid <= existingBids[0].currentBid or bid <= item.startingBid:
+            if bid <= existingBids[0].currentBid or bid <= item.price:
                 return HttpResponse("Bid has to be higher than current bid!")
             existingBid = existingBids[0]
             existingBid.bidTime = datetime.now()
             existingBid.currentBid = bid
             existingBid.user = user
             existingBid.save()
-        elif bid <= item.startingBid:
+        elif bid <= item.price:
             return HttpResponse("Bid has to be higher than starting bid!")
         else:
             newItem = Bid(item=item, bidTime=datetime.now(), currentBid=bid, user=user)
             newItem.save()
     return HttpResponseRedirect(reverse("details", args=(item_id,)))
+
+
+@login_required
+def endBidding(request, item_id):
+    existingBids = Bid.objects.filter(item=item_id)
+    bid = existingBids[0]
+    winner = str(bid.user)
+    AuctionListing.objects.filter(pk=item_id).update(sold=True, bidWinner=winner)
+    return HttpResponseRedirect(reverse("index"))
+
+@login_required
+def wonAuctions(request):
+    user = request.user
+    myPurchases = AuctionListing.objects.filter(bidWinner=user)
+    bid = Bid.objects.filter(user=user)
+    return render(request, "auctions/purchases.html", {
+        "myPurchases": myPurchases, "bid": bid
+    })
 
 

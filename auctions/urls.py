@@ -13,5 +13,7 @@ urlpatterns = [
     path("addToWishlist/<int:item_id>", views.addToWishlist, name="addToWishlist"),
     path("removeFromWishlist/<int:item_id>", views.removeFromWishlist, name="removeFromWishlist"),
     path("wishlist", views.wishList, name="wishlist"),
-    path("addBid/<int:item_id>", views.addBid, name="addBid")
+    path("addBid/<int:item_id>", views.addBid, name="addBid"),
+    path("endBidding/<int:item_id>", views.endBidding, name="endBidding"),
+    path("purchased", views.wonAuctions, name="purchased") 
 ]

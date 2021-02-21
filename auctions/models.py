@@ -11,7 +11,7 @@ class User(AbstractUser):
 
 class AuctionListing(models.Model):
     NotDefined = "NotDefined"
-    CATEGORIES = (
+    CATEGORIES = [
         (NotDefined, "Not defined"),
         ("Fashion", "Fashion"), 
         ("Toys", "Toys"),
@@ -20,7 +20,7 @@ class AuctionListing(models.Model):
         ("Car", "Car"),
         ("Travel", "Travel"),
         ("Fun", "Fun"),
-    )
+    ]
     item = models.CharField(max_length=125)
     description = models.CharField(blank=True, max_length=300)
     category = models.CharField(max_length=25, choices=CATEGORIES)

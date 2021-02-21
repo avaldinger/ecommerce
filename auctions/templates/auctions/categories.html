@@ -1,0 +1,16 @@
+{% extends "auctions/layout.html" %}
+
+{% load crispy_forms_tags%}
+
+{% block body %}
+    <h2>Existing categories</h2>
+    
+    <ul>
+    {%for category in categories%}
+        <li><a href="{% url 'categoryitems' category %}"><button type="button" class="btn btn-info">{{ category }}</button></a></li>
+        <br>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}

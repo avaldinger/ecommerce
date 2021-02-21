@@ -285,4 +285,21 @@ def wonAuctions(request):
         "myPurchases": myPurchases, "bid": bid
     })
 
+@login_required
+def getAllCategories(request):
+    allCategory = AuctionListing.CATEGORIES
+    categories = [x[0] for x in allCategory]
+    return render(request, "auctions/categories.html", {
+        "categories": categories
+    })
+
+@login_required
+def getCategoryListing(request, category):
+    print(category)
+    items = AuctionListing.objects.filter(category=category)
+    print(items)
+    return render(request, "auctions/categoryitems.html", {
+        "items": items
+    })
+
 
